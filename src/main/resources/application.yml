@@ -1,0 +1,11 @@
+server:
+  port: 8800
+
+#自定义属性
+canal:
+  client:
+    url: 10.26.27.81
+    port: 11111
+    destination: example
+    username:
+    password:
