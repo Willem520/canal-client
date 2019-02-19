@@ -30,20 +30,30 @@ public class SimpleConnector {
     }
 
     public void start(){
-        Optional.ofNullable(canalClientConfig).orElseThrow(()->new RuntimeException("canalClientConfig is null"));
-        CanalConnector connector = CanalConnectors.newSingleConnector(
-                new InetSocketAddress(canalClientConfig.getUrl(), canalClientConfig.getPort()),
-                canalClientConfig.getDestination(),canalClientConfig.getUsername(),canalClientConfig.getPassword());
-        connector.connect();
-        connector.subscribe();
-        while (true){
-            Message message = connector.getWithoutAck(100);
-            long batchId = message.getId();
-            if (batchId == -1 || message.getEntries().isEmpty()) {
-                System.out.println("******获取的内容为空******");
-            } else {
-                printEntries(message.getEntries());
-                connector.ack(batchId);
+        CanalConnector connector = null;
+        try{
+            Optional.ofNullable(canalClientConfig).orElseThrow(()->new Exception("canalClientConfig is null"));
+            connector = CanalConnectors.newSingleConnector(
+                    new InetSocketAddress(canalClientConfig.getUrl(), canalClientConfig.getPort()),
+                    canalClientConfig.getDestination(),canalClientConfig.getUsername(),canalClientConfig.getPassword());
+            connector.connect();
+            connector.subscribe();
+            while (true){
+                Message message = connector.getWithoutAck(100);
+                long batchId = message.getId();
+                List<CanalEntry.Entry> entryList = message.getEntries();
+                if (batchId == -1 || entryList.isEmpty()) {
+                    System.out.println("******获取的内容为空******");
+                } else {
+                    printEntries(entryList);
+                    connector.ack(batchId);
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        } finally {
+            if (connector != null){
+                connector.disconnect();
             }
         }
     }
