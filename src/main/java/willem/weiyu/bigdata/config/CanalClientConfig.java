@@ -5,13 +5,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @Author weiyu005@ke.com
+ * @Author weiyu
  * @Description
  * @Date 2019/2/19 16:59
  */
 @Configuration
 @Data
 public class CanalClientConfig {
+    @Value("${canal.client.isCluster}")
+    private boolean isCluster;
+
+    @Value("${canal.client.zkServers}")
+    private String zkServers;
+
     @Value("${canal.client.url}")
     private String url;
 

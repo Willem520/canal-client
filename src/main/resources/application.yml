@@ -4,6 +4,8 @@ server:
 #自定义属性
 canal:
   client:
+    isCluster: false
+    zkServers: 10.26.27.81:2181
     url: 10.26.27.81
     port: 11111
     destination: example
