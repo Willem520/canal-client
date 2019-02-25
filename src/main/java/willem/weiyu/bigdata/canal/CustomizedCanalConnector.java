@@ -97,6 +97,9 @@ public class CustomizedCanalConnector implements CommandLineRunner {
 
     private void printEntries(List<CanalEntry.Entry> entryList){
         for (CanalEntry.Entry entry : entryList) {
+            if (entry.getEntryType() != CanalEntry.EntryType.ROWDATA){
+                continue;
+            }
             try {
                 CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(entry.getStoreValue());
                 if (rowChange != null) {
