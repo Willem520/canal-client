@@ -99,9 +99,6 @@ public class CustomizedCanalConnector implements CommandLineRunner {
         for (CanalEntry.Entry entry : entryList) {
             try {
                 CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(entry.getStoreValue());
-                if (rowChange.getIsDdl()){
-
-                }
                 if (rowChange != null) {
                     if (rowChange.getIsDdl()) {
                         continue;
@@ -117,7 +114,6 @@ public class CustomizedCanalConnector implements CommandLineRunner {
     }
 
     private BinlogParseResult parseEvent(CanalEntry.Header header, CanalEntry.RowChange rowChange) {
-
         List<String> epRows = new ArrayList<>();
 
         long timestamp = header.getExecuteTime();
@@ -143,10 +139,10 @@ public class CustomizedCanalConnector implements CommandLineRunner {
                     continue;
             }
 
-
             epRow.getHeader().setDatabase(header.getSchemaName());
             epRow.getHeader().setTable(header.getTableName());
-
+            epRow.getHeader().setLogfile(header.getLogfileName());
+            epRow.getHeader().setLogOffset(header.getLogfileOffset());
             epRow.getHeader().setSourceTimestamp(timestamp);
             List<String> idList = new ArrayList<>();
             List<CanalEntry.Column> beforeColumnsList = rowData.getBeforeColumnsList();
@@ -181,11 +177,9 @@ public class CustomizedCanalConnector implements CommandLineRunner {
             }
 
             epRows.add(JSONObject.toJSONString(epRow));
-            if (log.isDebugEnabled()) {
-                log.debug("Receive binlog epRow: {}", epRow);
-            } else {
-                log.info("Receive binlog epRow[{}.{}]-[{}], changes:{}, delay:[{}]ms", epRow.getHeader().getDatabase(),
-                        epRow.getHeader().getTable(), epRow.getHeader().getAction(), epRow.getBody().getChanges(), delay);
+            if (log.isInfoEnabled()) {
+                log.info("Receive binlog epRow[{}.{}]-[{}], changes:{}, position:[{}], delay:[{}]ms", epRow.getHeader().getDatabase(),
+                        epRow.getHeader().getTable(), epRow.getHeader().getAction(), epRow.getBody().getChanges(), epRow.getHeader().getLogfile()+","+epRow.getHeader().getLogOffset(), delay);
             }
         }
         return new BinlogParseResult(epRows);

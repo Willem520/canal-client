@@ -40,6 +40,9 @@ public class EpRow {
 
         private long sourceTimestamp;
 
+        private String logfile;
+
+        private long logOffset;
     }
 
     @Getter
