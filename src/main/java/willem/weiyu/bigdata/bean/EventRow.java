@@ -16,7 +16,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EpRow {
+public class EventRow {
 
     private long timestamp;
 

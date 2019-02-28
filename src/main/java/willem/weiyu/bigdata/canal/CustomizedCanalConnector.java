@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import willem.weiyu.bigdata.bean.BinlogParseResult;
-import willem.weiyu.bigdata.bean.EpRow;
+import willem.weiyu.bigdata.bean.EventRow;
 import willem.weiyu.bigdata.config.CanalClientConfig;
 import willem.weiyu.bigdata.constant.EventType;
 
@@ -117,36 +117,36 @@ public class CustomizedCanalConnector implements CommandLineRunner {
     }
 
     private BinlogParseResult parseEvent(CanalEntry.Header header, CanalEntry.RowChange rowChange) {
-        List<String> epRows = new ArrayList<>();
+        List<String> eventRows = new ArrayList<>();
 
         long timestamp = header.getExecuteTime();
         long now = System.currentTimeMillis();
         long delay = now - timestamp;
 
         for (CanalEntry.RowData rowData : rowChange.getRowDatasList()) {
-            EpRow epRow = new EpRow();
-            epRow.setBody(new EpRow.Body());
-            epRow.setHeader(new EpRow.Header());
-            epRow.setTimestamp(now);
+            EventRow eventRow = new EventRow();
+            eventRow.setBody(new EventRow.Body());
+            eventRow.setHeader(new EventRow.Header());
+            eventRow.setTimestamp(now);
             switch (header.getEventType()) {
                 case INSERT:
-                    epRow.getHeader().setAction(EventType.INSERT.name());
+                    eventRow.getHeader().setAction(EventType.INSERT.name());
                     break;
                 case UPDATE:
-                    epRow.getHeader().setAction(EventType.UPDATE.name());
+                    eventRow.getHeader().setAction(EventType.UPDATE.name());
                     break;
                 case DELETE:
-                    epRow.getHeader().setAction(EventType.DELETE.name());
+                    eventRow.getHeader().setAction(EventType.DELETE.name());
                     break;
                 default:
                     continue;
             }
 
-            epRow.getHeader().setDatabase(header.getSchemaName());
-            epRow.getHeader().setTable(header.getTableName());
-            epRow.getHeader().setLogfile(header.getLogfileName());
-            epRow.getHeader().setLogOffset(header.getLogfileOffset());
-            epRow.getHeader().setSourceTimestamp(timestamp);
+            eventRow.getHeader().setDatabase(header.getSchemaName());
+            eventRow.getHeader().setTable(header.getTableName());
+            eventRow.getHeader().setLogfile(header.getLogfileName());
+            eventRow.getHeader().setLogOffset(header.getLogfileOffset());
+            eventRow.getHeader().setSourceTimestamp(timestamp);
             List<String> idList = new ArrayList<>();
             List<CanalEntry.Column> beforeColumnsList = rowData.getBeforeColumnsList();
             if (beforeColumnsList != null && !beforeColumnsList.isEmpty()) {
@@ -159,8 +159,8 @@ public class CustomizedCanalConnector implements CommandLineRunner {
                     }
                 }
                 String id = StringUtils.join(idList, "_");
-                epRow.getBody().setId(id);
-                epRow.getBody().setOldData(data);
+                eventRow.getBody().setId(id);
+                eventRow.getBody().setOldData(data);
             }
             List<CanalEntry.Column> afterColumnsList = rowData.getAfterColumnsList();
             if (afterColumnsList != null && !afterColumnsList.isEmpty()) {
@@ -175,17 +175,17 @@ public class CustomizedCanalConnector implements CommandLineRunner {
                         idList.add(getStringValue(column));
                     }
                 }
-                epRow.getBody().setData(data);
-                epRow.getBody().setChanges(changes);
+                eventRow.getBody().setData(data);
+                eventRow.getBody().setChanges(changes);
             }
 
-            epRows.add(JSONObject.toJSONString(epRow));
+            eventRows.add(JSONObject.toJSONString(eventRow));
             if (log.isInfoEnabled()) {
-                log.info("Receive binlog epRow[{}.{}]-[{}], changes:{}, position:[{}], delay:[{}]ms", epRow.getHeader().getDatabase(),
-                        epRow.getHeader().getTable(), epRow.getHeader().getAction(), epRow.getBody().getChanges(), epRow.getHeader().getLogfile()+","+epRow.getHeader().getLogOffset(), delay);
+                log.info("Receive binlog [{}.{}]-[{}], changes:{}, position:[{}], delay:[{}]ms", eventRow.getHeader().getDatabase(),
+                        eventRow.getHeader().getTable(), eventRow.getHeader().getAction(), eventRow.getBody().getChanges(), eventRow.getHeader().getLogfile()+","+eventRow.getHeader().getLogOffset(), delay);
             }
         }
-        return new BinlogParseResult(epRows);
+        return new BinlogParseResult(eventRows);
     }
 
     private Object getValue(CanalEntry.Column column) {
