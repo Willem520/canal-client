@@ -8,6 +8,8 @@ canal:
     zkServers: 10.26.27.81:2181
     url: 10.26.27.81
     port: 11111
-    destination: example
+    destinations:
+      - example
+      - rent_plat
     username:
     password:

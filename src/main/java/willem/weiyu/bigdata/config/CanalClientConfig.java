@@ -1,5 +1,7 @@
 package willem.weiyu.bigdata.config;
 
+import java.util.List;
+
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,7 +25,7 @@ public class CanalClientConfig {
 
     private Integer port;
 
-    private String destination;
+    private List<String> destinations;
 
     private String username;
 
