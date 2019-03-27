@@ -76,6 +76,7 @@ public class CustomizedCanalConnector implements CommandLineRunner {
                 List<CanalEntry.Entry> entryList = message.getEntries();
                 if (batchId == -1 || entryList.isEmpty()) {
                     log.info("******获取的内容为空******");
+                    Thread.sleep(1000);
                 } else {
                     printEntries(entryList);
                     canalConnector.ack(batchId);
@@ -83,6 +84,7 @@ public class CustomizedCanalConnector implements CommandLineRunner {
             }
         } catch (Exception e){
             e.printStackTrace();
+            log.error("occur error,message:[{}]",e.getMessage());
         } finally {
             stop();
         }
