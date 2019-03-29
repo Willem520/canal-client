@@ -68,12 +68,13 @@ public class CanalExecutor implements Callable<Void> {
             running = true;
             canalConnector.connect();
             canalConnector.subscribe();
+            canalConnector.rollback();
             while (running) {
                 Message message = canalConnector.getWithoutAck(100);
                 long batchId = message.getId();
                 List<CanalEntry.Entry> entryList = message.getEntries();
                 if (batchId == -1 || entryList.isEmpty()) {
-                    log.info("******[{}]获取的内容为空******",config.getDestination());
+                    log.warn("******[{}]获取的内容为空******",config.getDestination());
                     Thread.sleep(1000);
                 } else {
                     printEntries(entryList);
