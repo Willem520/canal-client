@@ -2,10 +2,10 @@ package willem.weiyu.bigdata.config;
 
 import java.util.List;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+import lombok.Data;
 
 /**
  * @Author weiyu
@@ -13,21 +13,9 @@ import org.springframework.context.annotation.Configuration;
  * @Date 2019/2/19 16:59
  */
 @Configuration
-@EnableConfigurationProperties(CanalClientConfig.class)
 @ConfigurationProperties(prefix = "canal.client")
 @Data
 public class CanalClientConfig {
-    private boolean isCluster;
 
-    private String zkServers;
-
-    private String url;
-
-    private Integer port;
-
-    private List<String> destinations;
-
-    private String username;
-
-    private String password;
+    private List<CanalExecutorConfig> configs;
 }
